@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-# See: http://norvig.com/sudoku.html
-
 require "enumerator"
 
 def all(seq)
