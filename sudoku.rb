@@ -81,7 +81,7 @@ def eliminate(values, s, d)
   return values
 end
 
-def print_board(values)
+def display(values)
   max_size = $squares.map{ |s| values[s].size }.max + 1
   line = (["-" * max_size * 3] * 3).join("+")
 
@@ -105,7 +105,11 @@ def search(values)
   return some(values[s].map{ |d| search(assign(deep_copy(values), s, d)) })
 end
 
+def solve(grid)
+  return search(parse_grid(grid))
+end
+
 # Main
 file = ARGV[0]
 grid_str = File.read(file).gsub(/\n/, "")
-print_board(search(parse_grid(grid_str)))
+display(solve(grid_str))
