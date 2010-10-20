@@ -1,4 +1,5 @@
 (ns sudoku
+  (:use [clojure.java.io :only (reader)])
   (:use [clojure.string :only (join)]))
 
 (defn cross [A B]
@@ -94,22 +95,7 @@
 (defn solve [grid]
   (search (parse-grid grid)))
 
-(display (solve (str "003020600"
-		     "900305001"
-		     "001806400"
-		     "008102900"
-		     "700000008"
-		     "006708200"
-		     "002609500"
-		     "800203009"
-		     "005010300")))
-
-(display (solve (str "300200000"
-		     "000107000"
-		     "706030500"
-		     "070009080"
-		     "900020004"
-		     "010800050"
-		     "009040301"
-		     "000702000"
-		     "000008006")))
+(with-open [rdr (reader (first *command-line-args*))]
+  (let [lines (line-seq rdr)
+	grid (join lines)]
+    (display (solve grid))))
