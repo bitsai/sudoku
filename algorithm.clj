@@ -75,8 +75,10 @@
 (defn display [values]
   (let [values-strs (for [s squares] (apply str (@values s)))
 	rows (partition 9 values-strs)
-	lines (for [r rows] (str/join " " (interpose-nth 3 "|" r)))]
-    (doseq [line (interpose-nth 3 "---------------------" lines)]
+	lines (for [r rows] (str/join " " (interpose-nth 3 "|" r)))
+	max-line-len (apply max (for [l lines] (count l)))
+	separator-line (apply str (repeat max-line-len "-"))]
+    (doseq [line (interpose-nth 3 separator-line lines)]
       (println line))))
 
 (defn search [values]
