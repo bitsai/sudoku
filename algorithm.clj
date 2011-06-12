@@ -1,16 +1,16 @@
 (ns algorithm
   (:require [clojure.string :as str]))
 
-(defn cross [A B]
-  (for [a A b B] (str a b)))
+(defn cross [as bs]
+  (for [a as, b bs] (str a b)))
 
 (defn all? [coll]
   (every? identity coll))
 
-(defn interpose-nth [n sep coll]
-  (apply concat (interpose [sep] (partition n coll))))
+(defn copy [values]
+  (atom @values))
 
-(def digits (set (range 1 10)))
+(def digits (set "123456789"))
 (def rows "ABCDEFGHI")
 (def cols digits)
 (def squares (cross rows cols))
@@ -18,7 +18,7 @@
   (concat
    (for [c cols] (cross rows [c]))
    (for [r rows] (cross [r] cols))
-   (for [rs (partition 3 rows) cs (partition 3 cols)] (cross rs cs))))
+   (for [rs (partition 3 rows), cs (partition 3 cols)] (cross rs cs))))
 (def units
   (into {} (for [s squares] [s (filter #(some #{s} %) unitlist)])))
 (def peers
@@ -46,7 +46,7 @@
   (case (count (@values s))
 	0 false
 	1 (let [d2 (first (@values s))]
-	    (every? #(eliminate values % d2) (peers s)))
+            (every? #(eliminate values % d2) (peers s)))
 	true))
 
 ;; If a unit u is reduced to 1 place for a value d, then put it there.
@@ -59,20 +59,13 @@
 		  true)))))
 
 (defn grid-values [grid]
-  (zipmap squares (map #(Character/digit % 10) grid)))
+  (zipmap squares grid))
 
 (defn parse-grid [grid]
   (let [values (atom (zipmap squares (repeat digits)))]
     (if (all? (for [[s d] (grid-values grid) :when (digits d)]
-		(assign values s d)))
+                (assign values s d)))
       values)))
-
-(defn display [values]
-  (let [rows (partition 9 (map #(apply str (@values %)) squares))
-	lines (map #(str/join " " (interpose-nth 3 "|" %)) rows)
-	separator-line (apply str (repeat 21 "-"))]
-    (doseq [line (interpose-nth 3 separator-line lines)]
-      (println line))))
 
 (defn search [values]
   (cond
@@ -80,7 +73,7 @@
    (every? #(= 1 (count (@values %))) squares) values
    :else (let [unfilled (filter #(> (count (@values %)) 1) squares)
 	       s (apply min-key #(count (@values %)) unfilled)]
-	   (some #(search (assign (atom @values) s %)) (@values s)))))
+	   (some #(search (assign (copy values) s %)) (@values s)))))
 
 (defn solve [grid]
   (search (parse-grid grid)))
